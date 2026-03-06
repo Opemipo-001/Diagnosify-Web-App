@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnosify: Heart Disease Predictor App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Diagnosify: Heart Disease Predictor</h1>
+        <form method="POST">
+            {% for key, label, min_val, max_val in [
+                ('age','Age (years)',30,120),
+                ('gender','Gender (1=Male,2=Female)',1,2),
+                ('height','Height (cm)',100,220),
+                ('weight','Weight (kg)',30,200),
+                ('ap_hi','Systolic BP',80,220),
+                ('ap_lo','Diastolic BP',50,150),
+                ('cholesterol','Cholesterol (1=Normal,2=Above,3=Well Above)',1,3),
+                ('gluc','Glucose (1=Normal,2=Above,3=Well Above)',1,3),
+                ('smoke','Smoking (0=No,1=Yes)',0,1),
+                ('alco','Alcohol (0=No,1=Yes)',0,1),
+                ('active','Physical Activity (0=No,1=Yes)',0,1)
+            ] %}
+            <label>{{ label }}</label>
+            <input type="number" name="{{ key }}" value="{{ input_data[key] }}" min="{{ min_val }}" max="{{ max_val }}" required>
+            {% endfor %}
+
+            <div class="buttons">
+                <button type="submit" name="predict">Predict</button>
+                <button type="button" onclick="clearForm()">Clear</button>
+            </div>
+        </form>
+
+        {% if prediction_msg %}
+        <div class="result">
+            <div class="gauge-container">
+                <div class="gauge-circle" style="--angle: {{ probability * 3.6 }}deg;">
+                    {{ probability }}%
+                </div>
+            </div>
+            <h2 class="prediction" style="color: {{ prediction_color }};">
+                {{ prediction_msg }}
+            </h2>
+        </div>
+        {% endif %}
+
+        <table class="normal-range">
+            <tr><th>Feature</th><th>Normal Range</th></tr>
+            <tr><td>Age</td><td>30 - 70 years</td></tr>
+            <tr><td>Height</td><td>150 - 200 cm</td></tr>
+            <tr><td>Weight</td><td>40 - 120 kg</td></tr>
+            <tr><td>Systolic BP</td><td>90 - 140 mmHg</td></tr>
+            <tr><td>Diastolic BP</td><td>60 - 90 mmHg</td></tr>
+            <tr><td>Cholesterol</td><td>1=Normal, 2=Above, 3=Well Above</td></tr>
+            <tr><td>Glucose</td><td>1=Normal, 2=Above, 3=Well Above</td></tr>
+            <tr><td>Smoking</td><td>0=No, 1=Yes</td></tr>
+            <tr><td>Alcohol</td><td>0=No, 1=Yes</td></tr>
+            <tr><td>Physical Activity</td><td>0=No, 1=Yes</td></tr>
+        </table>
+    </div>
+
+    <script>
+        function clearForm() {
+            // Clear all number inputs
+            const inputs = document.querySelectorAll('form input[type="number"]');
+            inputs.forEach(input => input.value = '');
+
+            // Clear prediction message
+            const prediction = document.querySelector('.prediction');
+            if (prediction) {
+                prediction.innerText = '';
+                prediction.style.color = '';
+            }
+
+            // Reset gauge
+            const gauge = document.querySelector('.gauge-circle');
+            if (gauge) {
+                gauge.style.setProperty('--angle', '0deg');
+                gauge.innerText = '0%';
+            }
+        }
+    </script>
+</body>
+</html>
