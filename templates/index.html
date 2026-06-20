@@ -3,84 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diagnosify: Heart Disease Predictor App</title>
+    <title>CardioScreen — Heart Disease Risk Assessment</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Diagnosify: Heart Disease Predictor</h1>
-        <form method="POST">
-            {% for key, label, min_val, max_val in [
-                ('age','Age (years)',30,120),
-                ('gender','Gender (1=Male,2=Female)',1,2),
-                ('height','Height (cm)',100,220),
-                ('weight','Weight (kg)',30,200),
-                ('ap_hi','Systolic BP',80,220),
-                ('ap_lo','Diastolic BP',50,150),
-                ('cholesterol','Cholesterol (1=Normal,2=Above,3=Well Above)',1,3),
-                ('gluc','Glucose (1=Normal,2=Above,3=Well Above)',1,3),
-                ('smoke','Smoking (0=No,1=Yes)',0,1),
-                ('alco','Alcohol (0=No,1=Yes)',0,1),
-                ('active','Physical Activity (0=No,1=Yes)',0,1)
-            ] %}
-            <label>{{ label }}</label>
-            <input type="number" name="{{ key }}" value="{{ input_data[key] }}" min="{{ min_val }}" max="{{ max_val }}" required>
-            {% endfor %}
 
-            <div class="buttons">
-                <button type="submit" name="predict">Predict</button>
-                <button type="button" onclick="clearForm()">Clear</button>
-            </div>
-        </form>
+    <div class="topbar">
+        <div class="logo-mark">&#10084;</div>
+        <div class="brand-text">
+            <strong>CardioScreen</strong>
+            <span>AI-assisted cardiovascular risk screening</span>
+        </div>
+    </div>
 
-        {% if prediction_msg %}
-        <div class="result">
-            <div class="gauge-container">
-                <div class="gauge-circle" style="--angle: {{ probability * 3.6 }}deg;">
-                    {{ probability }}%
-                </div>
-            </div>
-            <h2 class="prediction" style="color: {{ prediction_color }};">
-                {{ prediction_msg }}
-            </h2>
+    <div class="page">
+
+        <div class="intro">
+            <h1>Patient Intake Form</h1>
+            <p>Enter the details below to generate a heart disease risk screening report.</p>
+        </div>
+
+        {% if errors %}
+        <div class="alert-box">
+            <strong>Please correct the following before continuing</strong>
+            <ul>
+                {% for e in errors %}
+                <li>{{ e }}</li>
+                {% endfor %}
+            </ul>
         </div>
         {% endif %}
 
-        <table class="normal-range">
-            <tr><th>Feature</th><th>Normal Range</th></tr>
-            <tr><td>Age</td><td>30 - 70 years</td></tr>
-            <tr><td>Height</td><td>150 - 200 cm</td></tr>
-            <tr><td>Weight</td><td>40 - 120 kg</td></tr>
-            <tr><td>Systolic BP</td><td>90 - 140 mmHg</td></tr>
-            <tr><td>Diastolic BP</td><td>60 - 90 mmHg</td></tr>
-            <tr><td>Cholesterol</td><td>1=Normal, 2=Above, 3=Well Above</td></tr>
-            <tr><td>Glucose</td><td>1=Normal, 2=Above, 3=Well Above</td></tr>
-            <tr><td>Smoking</td><td>0=No, 1=Yes</td></tr>
-            <tr><td>Alcohol</td><td>0=No, 1=Yes</td></tr>
-            <tr><td>Physical Activity</td><td>0=No, 1=Yes</td></tr>
-        </table>
+        <form action="/predict" method="POST" novalidate>
+            <div class="card">
+
+                <!-- Demographics -->
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <div class="section-icon">&#128100;</div>
+                        <h2>Demographics</h2>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="age">Age <span class="hint">(years)</span></label>
+                            <input type="number" id="age" name="age" min="1" max="120" step="1"
+                                   value="{{ form_data.age if form_data else '' }}" required>
+                        </div>
+                        <div class="field">
+                            <label for="gender">Gender</label>
+                            <select id="gender" name="gender" required>
+                                <option value="1" {% if form_data and form_data.gender=='1' %}selected{% endif %}>Female</option>
+                                <option value="2" {% if form_data and form_data.gender=='2' %}selected{% endif %}>Male</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="height">Height <span class="hint">(cm)</span></label>
+                            <input type="number" id="height" name="height" min="50" max="250" step="0.1"
+                                   value="{{ form_data.height if form_data else '' }}" required>
+                        </div>
+                        <div class="field">
+                            <label for="weight">Weight <span class="hint">(kg)</span></label>
+                            <input type="number" id="weight" name="weight" min="10" max="300" step="0.1"
+                                   value="{{ form_data.weight if form_data else '' }}" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vitals -->
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <div class="section-icon">&#129505;</div>
+                        <h2>Vitals &amp; Labs</h2>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="ap_hi">Systolic BP <span class="hint">(ap_hi, mmHg)</span></label>
+                            <input type="number" id="ap_hi" name="ap_hi" min="50" max="300" step="1"
+                                   value="{{ form_data.ap_hi if form_data else '' }}" required>
+                        </div>
+                        <div class="field">
+                            <label for="ap_lo">Diastolic BP <span class="hint">(ap_lo, mmHg)</span></label>
+                            <input type="number" id="ap_lo" name="ap_lo" min="30" max="200" step="1"
+                                   value="{{ form_data.ap_lo if form_data else '' }}" required>
+                        </div>
+                        <div class="field">
+                            <label for="cholesterol">Cholesterol Level</label>
+                            <select id="cholesterol" name="cholesterol" required>
+                                <option value="1" {% if form_data and form_data.cholesterol=='1' %}selected{% endif %}>Normal</option>
+                                <option value="2" {% if form_data and form_data.cholesterol=='2' %}selected{% endif %}>Above Normal</option>
+                                <option value="3" {% if form_data and form_data.cholesterol=='3' %}selected{% endif %}>Well Above Normal</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="gluc">Glucose Level</label>
+                            <select id="gluc" name="gluc" required>
+                                <option value="1" {% if form_data and form_data.gluc=='1' %}selected{% endif %}>Normal</option>
+                                <option value="2" {% if form_data and form_data.gluc=='2' %}selected{% endif %}>Above Normal</option>
+                                <option value="3" {% if form_data and form_data.gluc=='3' %}selected{% endif %}>Well Above Normal</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lifestyle -->
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <div class="section-icon">&#127939;</div>
+                        <h2>Lifestyle</h2>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="smoke">Smoking</label>
+                            <select id="smoke" name="smoke" required>
+                                <option value="0" {% if form_data and form_data.smoke=='0' %}selected{% endif %}>No</option>
+                                <option value="1" {% if form_data and form_data.smoke=='1' %}selected{% endif %}>Yes</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="alco">Alcohol Intake</label>
+                            <select id="alco" name="alco" required>
+                                <option value="0" {% if form_data and form_data.alco=='0' %}selected{% endif %}>No</option>
+                                <option value="1" {% if form_data and form_data.alco=='1' %}selected{% endif %}>Yes</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="active">Physically Active</label>
+                            <select id="active" name="active" required>
+                                <option value="1" {% if form_data and form_data.active=='1' %}selected{% endif %}>Yes</option>
+                                <option value="0" {% if form_data and form_data.active=='0' %}selected{% endif %}>No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="submit-row">
+                    <button type="submit" class="btn-primary">Generate Risk Assessment</button>
+                </div>
+            </div>
+        </form>
+
+        <p class="form-footnote">All fields are required. Values are validated for realistic physiological ranges before screening.</p>
+
     </div>
 
-    <script>
-        function clearForm() {
-            // Clear all number inputs
-            const inputs = document.querySelectorAll('form input[type="number"]');
-            inputs.forEach(input => input.value = '');
-
-            // Clear prediction message
-            const prediction = document.querySelector('.prediction');
-            if (prediction) {
-                prediction.innerText = '';
-                prediction.style.color = '';
-            }
-
-            // Reset gauge
-            const gauge = document.querySelector('.gauge-circle');
-            if (gauge) {
-                gauge.style.setProperty('--angle', '0deg');
-                gauge.innerText = '0%';
-            }
-        }
-    </script>
 </body>
 </html>

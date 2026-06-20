@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CardioScreen — Risk Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+</head>
+<body>
+
+    <div class="topbar">
+        <div class="logo-mark">&#10084;</div>
+        <div class="brand-text">
+            <strong>CardioScreen</strong>
+            <span>AI-assisted cardiovascular risk screening</span>
+        </div>
+    </div>
+
+    <div class="page">
+
+        <div class="intro">
+            <h1>Risk Assessment Report</h1>
+            <p>Generated from the inputs you submitted. Review each section below.</p>
+        </div>
+
+        <!-- Hero: risk % + health score gauge -->
+        <div class="dash-grid">
+            <div class="risk-hero {{ risk_class }}">
+                <div>
+                    <div class="eyebrow">Estimated Risk</div>
+                    <div class="risk-pct">{{ probability }}<sup>%</sup></div>
+                    <div class="risk-label">{{ risk_label }}</div>
+                </div>
+                <div class="risk-sub">
+                    Estimated likelihood of heart disease based on your submitted health information
+                </div>
+            </div>
+
+            <div class="score-card">
+                <h3>Heart Health Score</h3>
+                <div class="gauge-wrap">
+                    <svg width="140" height="140" viewBox="0 0 140 140">
+                        <circle class="gauge-bg" cx="70" cy="70" r="58"></circle>
+                        <circle class="gauge-fg" cx="70" cy="70" r="58"
+                            stroke="{{ '#1E8449' if health_score >= 70 else ('#B7791F' if health_score >= 40 else '#C0392B') }}"
+                            stroke-dasharray="364.4"
+                            stroke-dashoffset="{{ 364.4 - (364.4 * health_score / 100) }}">
+                        </circle>
+                    </svg>
+                    <div class="gauge-center">
+                        <div class="score-num">{{ health_score }}</div>
+                        <div class="score-denom">out of 100</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info row: risk category / BMI -->
+        <div class="info-row info-row-2">
+            <div class="info-card">
+                <div class="info-label">Risk Category</div>
+                <div class="info-value">{{ risk_label }}</div>
+                <span class="info-tag tag-{{ risk_class }}">{{ probability }}% estimated risk</span>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Body Mass Index</div>
+                <div class="info-value">{{ bmi }}</div>
+                <span class="info-tag tag-neutral">{{ bmi_category }}</span>
+            </div>
+        </div>
+
+        <!-- Pie chart -->
+        <div class="card chart-card">
+            <div class="chart-canvas-wrap">
+                <canvas id="riskPieChart"></canvas>
+            </div>
+            <div class="chart-legend">
+                <h2 class="card-title" style="margin-bottom: 4px;">Risk Distribution</h2>
+                <div class="legend-item">
+                    <span class="legend-dot risk"></span>
+                    Heart Disease Risk
+                    <span class="legend-pct">{{ probability }}%</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot safe"></span>
+                    No Heart Disease Risk
+                    <span class="legend-pct">{{ safe_pct }}%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Explanation -->
+        <div class="card">
+            <h2 class="card-title">Key Factors Influencing This Assessment</h2>
+            <div class="factor-list">
+                {% for factor in contributing_factors %}
+                <div class="factor-item factor-{{ factor.status }}">
+                    <div class="factor-icon">
+                        {% if factor.status == 'good' %}&#10003;{% elif factor.status == 'caution' %}&#9888;{% else %}&#10071;{% endif %}
+                    </div>
+                    <div>
+                        <div class="factor-label">{{ factor.label }}</div>
+                        <div class="factor-detail">{{ factor.detail }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer-box">
+            This is an AI-based screening tool and not a medical diagnosis. Please consult a qualified healthcare professional for clinical evaluation and advice.
+        </div>
+
+        <a href="/" class="back-link">&larr; New Assessment</a>
+
+    </div>
+
+    <script>
+        const ctx = document.getElementById('riskPieChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Heart Disease Risk', 'No Heart Disease Risk'],
+                datasets: [{
+                    data: [{{ probability }}, {{ safe_pct }}],
+                    backgroundColor: ['#C0392B', '#1E8449'],
+                    borderColor: '#ffffff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
