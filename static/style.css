@@ -1,20 +1,4 @@
-/* =========================================================
-   Cardio Risk Dashboard — Clinical Design System
-   Palette:
-     --teal-900   #0F4C5C   primary / headers / nav
-     --teal-600   #14707F   accents, links, focus
-     --slate-50   #F7F9FA   page background
-     --paper      #FFFFFF   cards
-     --ink-900    #1F2A30   primary text
-     --ink-500    #5B6B73   secondary text
-     --line       #E2E8EA   borders/dividers
-   Risk colors (reserved ONLY for risk semantics):
-     --risk-low      #1E8449
-     --risk-moderate #B7791F
-     --risk-high     #C0392B
-   Type: system grotesk stack for UI/data, no display serif —
-   clinical dashboards read better in a single clean grotesk.
-   ========================================================= */
+
 
 :root {
     --teal-900: #0F4C5C;
@@ -62,7 +46,7 @@ a {
     color: var(--teal-600);
 }
 
-/* ---------- Top bar ---------- */
+/* Top bar  */
 
 .topbar {
     background: var(--teal-900);
@@ -101,7 +85,7 @@ a {
     color: rgba(255, 255, 255, 0.7);
 }
 
-/* ---------- Page shell ---------- */
+/* Page shell  */
 
 .page {
     max-width: 920px;
@@ -125,7 +109,7 @@ a {
     font-size: 0.95rem;
 }
 
-/* ---------- Alerts ---------- */
+/*  Alerts */
 
 .alert-box {
     background: var(--risk-high-bg);
@@ -150,7 +134,7 @@ a {
     font-size: 0.9rem;
 }
 
-/* ---------- Form card / sections ---------- */
+/* Form card / sections  */
 
 .card {
     background: var(--paper);
@@ -276,7 +260,7 @@ a {
     margin-top: 12px;
 }
 
-/* ---------- Result dashboard ---------- */
+/* Result dashboard */
 
 .dash-grid {
     display: grid;
@@ -403,7 +387,7 @@ a {
     color: var(--ink-500);
 }
 
-/* ---------- Info cards row ---------- */
+/*  Info cards row */
 
 .info-row {
     display: grid;
@@ -458,7 +442,7 @@ a {
 .tag-high { background: var(--risk-high-bg); color: var(--risk-high); }
 .tag-neutral { background: var(--teal-100); color: var(--teal-900); }
 
-/* ---------- Chart card ---------- */
+/* Chart card */
 
 .chart-card {
     display: flex;
@@ -501,7 +485,7 @@ a {
     color: var(--ink-900);
 }
 
-/* ---------- Explanation section ---------- */
+/*  Explanation section  */
 
 .factor-list {
     display: flex;
@@ -574,7 +558,7 @@ a {
     margin-top: 2px;
 }
 
-/* ---------- Disclaimer ---------- */
+/*  Disclaimer  */
 
 .disclaimer-box {
     background: var(--teal-100);
@@ -586,7 +570,7 @@ a {
     margin-top: 4px;
 }
 
-/* ---------- Back link ---------- */
+/* Back link  */
 
 .back-link {
     display: inline-flex;
@@ -607,7 +591,7 @@ a {
     background: var(--teal-100);
 }
 
-/* ---------- Card title ---------- */
+/*  Card title  */
 
 .card h2.card-title {
     font-size: 1rem;
@@ -615,7 +599,7 @@ a {
     color: var(--teal-900);
 }
 
-/* ---------- Responsive ---------- */
+/*  Responsive  */
 
 @media (max-width: 600px) {
     .page {

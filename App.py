@@ -4,25 +4,17 @@ import numpy as np
 
 app = Flask(__name__)
 
-# ---------------------------------------------------------
 # Load model and scaler.
-# Saved with joblib.dump() during training, so they must be
-# loaded with joblib.load() (not pickle.load()).
-# ---------------------------------------------------------
 xgb_model = joblib.load('cardio_xgb_model.pkl')
 scaler = joblib.load('cardio_scaler.pkl')
 
-# Feature order must match training exactly — DO NOT change.
+# Feature order must match training exactly 
 FEATURE_ORDER = [
     'age', 'gender', 'height', 'weight', 'ap_hi', 'ap_lo',
     'cholesterol', 'gluc', 'smoke', 'alco', 'active', 'bmi'
 ]
 
-# ---------------------------------------------------------
 # Validation ranges. These only reject physiologically
-# impossible / clearly mistyped values — they do not touch
-# the model, scaler, or feature logic in any way.
-# ---------------------------------------------------------
 VALIDATION_RULES = {
     'age':         {'min': 1,   'max': 120,  'label': 'Age'},
     'height':      {'min': 50,  'max': 250,  'label': 'Height'},
@@ -305,16 +297,16 @@ def predict():
     alco = values['alco']
     active = values['active']
 
-    # ---- BMI calculation (kept exactly as original) ----
+    #BMI calculation 
     bmi = weight / ((height / 100) ** 2)
 
-    # ---- Feature vector in the required order (UNCHANGED) ----
+    # Feature vector in the required order 
     features = np.array([[
         age, gender, height, weight, ap_hi, ap_lo,
         cholesterol, gluc, smoke, alco, active, bmi
     ]])
 
-    # ---- Scale + predict (UNCHANGED ML LOGIC) ----
+    # Scale + predict (UNCHANGED ML LOGIC) 
     scaled_features = scaler.transform(features)
     probability = xgb_model.predict_proba(scaled_features)[0][1]
     prediction = xgb_model.predict(scaled_features)[0]
