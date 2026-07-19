@@ -39,7 +39,7 @@ def validate_inputs(form):
         'cholesterol', 'gluc', 'smoke', 'alco', 'active'
     ]
 
-    # ---- Required / empty check ----
+    # Required / empty check 
     for field in required_fields:
         raw = form.get(field, '').strip()
         if raw == '':
@@ -48,7 +48,7 @@ def validate_inputs(form):
     if errors:
         return None, errors
 
-    # ---- Type parsing ----
+    #  Type parsing 
     try:
         values['age'] = float(form['age'])
         values['gender'] = int(form['gender'])
@@ -65,7 +65,7 @@ def validate_inputs(form):
         errors.append("One or more fields contain an invalid (non-numeric) value.")
         return None, errors
 
-    # ---- Range checks ----
+    #Range checks 
     for field, rule in VALIDATION_RULES.items():
         v = values[field]
         if v < rule['min'] or v > rule['max']:
